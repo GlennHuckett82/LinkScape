@@ -1,0 +1,25 @@
+import { Routes, Route, Link } from 'react-router-dom';
+// animations handled via CSS or react-transition-group later
+import HomePage from './pages/HomePage';
+import PostPage from './pages/PostPage';
+
+const App = () => {
+  return (
+    <div>
+      <header className="border-b bg-white">
+        <div className="container-page flex items-center justify-between h-16">
+          <Link to="/" className="text-xl font-bold text-brand">LinkScape</Link>
+          <nav className="text-sm text-gray-600">Explore Reddit</nav>
+        </div>
+      </header>
+  <main className="container-page py-6">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/post/:id" element={<PostPage />} />
+        </Routes>
+  </main>
+    </div>
+  );
+};
+
+export default App;

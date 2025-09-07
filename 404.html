@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=/index.html">
+    <link rel="canonical" href="/index.html"/>
+  </head>
+  <body>
+    <p>Redirecting to <a href="/index.html">/index.html</a>…</p>
+    <script>
+      // Client-side redirect preserving path for SPA routers
+      var l = window.location;
+      var path = l.pathname + l.search + l.hash;
+      if (path && path !== '/' && !path.includes('index.html')) {
+        window.location.replace('/index.html');
+      }
+    </script>
+  </body>
+  </html>

@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --page-max: 1200px;
+}
+
+/* Simple design tokens */
+.container-page { @apply max-w-[var(--page-max)] mx-auto px-4; }
