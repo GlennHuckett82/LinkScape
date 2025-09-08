@@ -8,3 +8,15 @@
 
 /* Simple design tokens */
 .container-page { @apply max-w-[var(--page-max)] mx-auto px-4; }
+
+/* App background image (replace URL as desired). Uses cover + fixed for a parallax feel. */
+html, body, #root { height: 100%; }
+body {
+  /* Example image from Unsplash (free to use) */
+  background-image:
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+    url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
