@@ -13,10 +13,12 @@ const App = () => {
         </div>
       </header>
   <main className="container-page py-6">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/post/:id" element={<PostPage />} />
-        </Routes>
+        <div className="rounded-xl bg-white/80 backdrop-blur-sm shadow-md p-4 md:p-6">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/post/:id" element={<PostPage />} />
+          </Routes>
+        </div>
   </main>
     </div>
   );
