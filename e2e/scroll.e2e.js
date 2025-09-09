@@ -1,10 +1,13 @@
 const { Builder, By, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 
 describe('Scroll restoration', () => {
   it('restores scroll when navigating back from a post', async () => {
-    const { Options: EdgeOptions } = require('selenium-webdriver/edge');
-    const edgeOpts = new EdgeOptions().addArguments('--headless=new');
-    const driver = await new Builder().forBrowser('MicrosoftEdge').setEdgeOptions(edgeOpts).build();
+    const chromeOpts = new chrome.Options().addArguments('--headless=new', '--no-sandbox', '--disable-dev-shm-usage');
+    if (process.env.CHROME_PATH) {
+      chromeOpts.setChromeBinaryPath(process.env.CHROME_PATH);
+    }
+    const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeOpts).build();
 
     const base = global.__E2E_BASE_URL__ || process.env.E2E_BASE_URL || 'http://127.0.0.1:5192';
     try {
