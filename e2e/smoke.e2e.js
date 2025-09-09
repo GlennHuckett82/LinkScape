@@ -6,7 +6,14 @@ describe('LinkScape E2E', () => {
     const edgeOpts = new EdgeOptions().addArguments('--headless=new');
     const driver = await new Builder().forBrowser('MicrosoftEdge').setEdgeOptions(edgeOpts).build();
 
-    const candidates = [global.__E2E_BASE_URL__ || process.env.E2E_BASE_URL, 'http://localhost:5173', 'http://localhost:5174'].filter(Boolean);
+    const candidates = [
+      global.__E2E_BASE_URL__ || process.env.E2E_BASE_URL,
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://127.0.0.1:5192',
+      'http://127.0.0.1:5181',
+      'http://localhost:5181'
+    ].filter(Boolean);
     let lastError;
     try {
       for (const base of candidates) {

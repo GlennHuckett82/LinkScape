@@ -3,6 +3,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import PostPage from './pages/PostPage';
 
+/** App shell: header + main content with client-side routes. */
 const App = () => {
   return (
     <div>
@@ -12,14 +13,14 @@ const App = () => {
           <nav className="text-sm text-gray-600">Explore Reddit</nav>
         </div>
       </header>
-  <main className="container-page py-6">
+      <main className="container-page py-6">
         <div className="rounded-xl bg-white/80 backdrop-blur-sm shadow-md p-4 md:p-6">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/post/:id" element={<PostPage />} />
           </Routes>
         </div>
-  </main>
+      </main>
     </div>
   );
 };

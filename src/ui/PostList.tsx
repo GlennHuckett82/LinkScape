@@ -3,6 +3,11 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import PostCard from './PostCard';
 
+/**
+ * PostList renders a responsive grid of PostCard components.
+ * It performs a lightweight in-memory filter using the current search term
+ * for immediate feedback while typing.
+ */
 const PostList: React.FC = () => {
   const posts = useSelector((s: RootState) => s.posts.items);
   const term = useSelector((s: RootState) => s.ui.searchTerm);
@@ -14,7 +19,7 @@ const PostList: React.FC = () => {
   }, [term, posts]);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {filtered.map((p) => (
         <PostCard key={p.id} post={p} />)
       )}

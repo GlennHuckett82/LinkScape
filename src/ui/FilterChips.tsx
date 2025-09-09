@@ -9,6 +9,10 @@ const categories: Array<{ key: 'hot' | 'new' | 'top'; label: string }> = [
   { key: 'top', label: 'Top' }
 ];
 
+/**
+ * FilterChips toggles the active feed category. It writes to ui.selectedCategory,
+ * which HomePage uses to fetch the chosen feed.
+ */
 const FilterChips = () => {
   const dispatch = useDispatch();
   const selected = useAppSelector((s: RootState) => s.ui.selectedCategory);

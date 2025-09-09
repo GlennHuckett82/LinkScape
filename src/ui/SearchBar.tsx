@@ -2,10 +2,15 @@ import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setSearchTerm } from '../store/uiSlice';
 
+/**
+ * SearchBar is a controlled input that debounces updates to the global search term.
+ * HomePage listens to searchTerm changes to trigger search/feed fetches.
+ */
 const SearchBar = () => {
   const [value, setValue] = useState('');
   const dispatch = useDispatch();
 
+  // Debounce input changes to avoid firing a request on every keystroke
   useEffect(() => {
     const id = setTimeout(() => dispatch(setSearchTerm(value)), 250);
     return () => clearTimeout(id);

@@ -6,6 +6,9 @@ import { store } from './store';
 import App from './App';
 import './index.css';
 
+/**
+ * Entry point: mounts the React app, wires Redux provider and React Router.
+ */
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
