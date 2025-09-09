@@ -1,46 +1,50 @@
 # LinkScape
 
-Explore and filter Reddit links with a fast, responsive, and accessible UI.
+Explore Reddit with a fast, responsive, in‑app reader. Built with React + Redux and deployable to GitHub Pages.
 
 ## Tech stack
-- React 17 + Redux Toolkit + React Router
-- Vite build tool
-- Tailwind CSS for design system
-- Framer Motion for animations
-- TypeScript
-- Jest + Enzyme for unit tests
-- Selenium WebDriver (Jest runner) for E2E tests
+- React 17 + Redux Toolkit + React Router 6
+- Vite 5 (TS) + Tailwind CSS
+- Jest + Enzyme (unit), Selenium WebDriver (E2E)
+- GitHub Actions (CI) + GitHub Pages (CD)
 
 ## Features
-- Initial data view on first visit
-- Search by terms (debounced)
-- Predefined category filters (Hot/New/Top)
-- Detailed view (route)
-- Cohesive design system and animations
-- Error states with recovery
-- Responsive, cross-browser support
+- Home feed with search and Hot/New/Top filters
+- In‑app post reader with selftext formatting and top comments
+- Inline error + retry, subtle animations, scroll restoration
+- SPA routing with 404 fallback for static hosts
 
-## Getting started
-1. Install dependencies
-2. Run the dev server
-3. Run unit tests and E2E tests
+## Quick start
+```bash
+npm install
+npm run dev:5173   # http://localhost:5173
+```
 
-## Scripts
-- `npm run dev` – start dev server
-- `npm run build` – production build
-- `npm run preview` – preview production build
-- `npm test` – unit tests
-- `npm run test:e2e` – end-to-end tests (dev server must be running on port 5173)
+## Tests
+- Unit: `npm run test:fast`
+- E2E (needs a server): `npm run test:e2e`
 
-## Wireframes
-- See `docs/wireframes` (TBD) – wireframes were used to inform component structure.
+## Production build
+- Standard build: `npm run build`
+- Local static preview: `npm run build && npm run serve:build` → http://127.0.0.1:5181
+- GitHub Pages build: `npm run build:pages` (base=/LinkScape/)
+- Open directly from File Explorer: `npm run build:file` then open `dist/index.html`
+	- Note: file:// opening works best for the initial page; client‑side routes (e.g. /post/...) require a web server. Use `serve:build` for SPA routing.
 
-## Future work
-- Integrate Reddit API with caching and rate-limit backoff
-- Modal detail view with comments
-- PWA support and offline caching
-- CI/CD with deploy previews and Lighthouse CI
+## Deploy (GitHub Pages)
+- CI builds with the correct base and deploys `dist`.
+- Site URL: `https://<username>.github.io/LinkScape/`.
 
-## Architecture notes
-- React 17 chosen to align with Enzyme adapter compatibility.
-- SPA routing configured for static hosting (add 404.html fallback on deploy).
+## Notes on performance (Windows + OneDrive)
+- OneDrive syncing can slow test/build I/O. For the snappiest experience, clone to a non‑synced folder like `C:\dev\LinkScape`.
+- Jest cache is stored in the system temp to avoid OneDrive overhead.
+
+## Project structure
+- `src/` components, pages, Redux slices, and utils (with inline comments)
+- `scripts/serve-dist.mjs` static server with SPA fallback
+- `e2e/` Selenium tests and setup
+- `.github/workflows/` CI + deploy workflows
+
+## Troubleshooting
+- If E2E can’t find a server, it will auto‑start on 5192. Set `E2E_BASE_URL` to override.
+- For GitHub Pages, the base path is controlled via `VITE_BASE_PATH` env (defaults to `/`).

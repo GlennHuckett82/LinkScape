@@ -8,6 +8,7 @@
     "dev:5173": "vite --port 5173 --strictPort",
     "build": "vite build",
   "build:pages": "cross-env VITE_BASE_PATH=/LinkScape/ vite build",
+  "build:file": "cross-env VITE_BASE_PATH=./ vite build",
     "preview": "vite preview --port 5173",
   "test": "jest",
   "test:fast": "jest --maxWorkers=50%",
