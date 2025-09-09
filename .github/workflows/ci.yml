@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:ci
@@ -25,8 +25,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
+      - name: Setup Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
       - run: npm ci
       - run: npm run build
       - name: Run E2E (auto-start static server)
         run: npx jest -c ./e2e/jest.e2e.config.cjs --runInBand
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
