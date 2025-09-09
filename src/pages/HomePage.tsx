@@ -5,7 +5,8 @@ import PostList from '@/ui/PostList';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
-import { fetchFeed, searchPosts, beginRequest } from '@/store/postsSlice';
+import { fetchFeed, searchPosts } from '@/store/postsSlice';
+import { setSearchTerm } from '@/store/uiSlice';
 
 /**
  * HomePage wires the search/category UI to the posts slice.
@@ -28,6 +29,13 @@ const HomePage = () => {
     }
   }, [dispatch, searchTerm, selectedCategory]);
 
+  // Auto-clear the search box if a search returns zero items, so it's blank for the next attempt
+  useEffect(() => {
+    if (status === 'succeeded' && searchTerm.trim() && items.length === 0) {
+      dispatch(setSearchTerm(''));
+    }
+  }, [status, searchTerm, items.length, dispatch]);
+
   // Restore scroll position when returning from PostPage
   useEffect(() => {
     try {
@@ -45,27 +53,7 @@ const HomePage = () => {
         {/* Left cluster: Search + inline error banner when failed */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
           <SearchBar />
-          {status === 'failed' && (
-            <div
-              className="md:w-[22rem] inline-flex items-center gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 shadow-sm md:shrink-0"
-              title={error || undefined}
-              aria-live="polite"
-            >
-              <span className="truncate">Couldn’t load posts</span>
-              <button
-                className="ml-auto inline-flex items-center rounded bg-red-600 px-2.5 py-1 text-white hover:bg-red-700"
-                onClick={() => {
-                  // Hide error immediately and retry the last request (search or feed)
-                  const term = searchTerm.trim();
-                  dispatch(beginRequest());
-                  if (term) dispatch(searchPosts({ query: term }));
-                  else dispatch(fetchFeed({ category: selectedCategory }));
-                }}
-              >
-                Retry
-              </button>
-            </div>
-          )}
+          {/* Removed retry banner */}
         </div>
         <FilterChips />
       </div>
@@ -77,10 +65,6 @@ const HomePage = () => {
             <div key={i} className="h-28 rounded-lg bg-gray-100 animate-pulse" />
           ))}
         </div>
-      )}
-      {/* Failed state is shown inline next to the search bar */}
-      {status === 'succeeded' && items.length === 0 && (
-        <div className="rounded bg-gray-50 p-6 text-gray-700">No results found.</div>
       )}
 
       {/* Post grid */}

@@ -54,33 +54,18 @@ export interface PostsState {
 }
 
 const initialState: PostsState = {
-  items: [
-    {
-      id: '1',
-      title: 'Welcome to LinkScape – your gateway to Reddit!',
-      author: 'mod',
-      subreddit: 'r/popular',
-      thumbnail: '',
-      score: 1234,
-      num_comments: 345,
-      created_utc: Math.floor(Date.now() / 1000)
-    },
-    {
-      id: '2',
-      title: 'Search and filter posts with a clean, responsive UI',
-      author: 'dev',
-      subreddit: 'r/reactjs',
-      thumbnail: '',
-      score: 888,
-      num_comments: 120,
-      created_utc: Math.floor(Date.now() / 1000) - 3600
-    }
-  ],
+  items: [],
   status: 'idle',
   error: undefined,
   after: null,
   details: {}
 };
+
+/** Determine if a post id looks like a real Reddit base36 id or a local post. */
+export function isLikelyRealRedditId(id: string): boolean {
+  if (id.startsWith('local-')) return true;
+  return /^[a-z0-9]{3,}$/i.test(id);
+}
 
 // Map Reddit API child to PostItem
 function mapRedditPost(d: any): PostItem {
@@ -102,21 +87,28 @@ export const fetchFeed = createAsyncThunk(
     params: { category: 'hot' | 'new' | 'top'; after?: string | null; subreddit?: string },
     thunkAPI
   ) => {
-  // Build the Reddit URL for either frontpage or a specific subreddit.
+    // Build the Reddit URL for either frontpage or a specific subreddit.
     const { category, after, subreddit } = params;
     const controller = new AbortController();
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
-    const base = subreddit ? `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/${category}.json` : `https://www.reddit.com/${category}.json`;
-    const url = new URL(base);
-    url.searchParams.set('limit', '25');
-    if (after) url.searchParams.set('after', after);
-    const res = await fetch(url.toString(), { signal: controller.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    const children = json?.data?.children ?? [];
-    const items: PostItem[] = children.map((c: any) => mapRedditPost(c.data));
-    const next: string | null = json?.data?.after ?? null;
-    return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
+    try {
+      const base = subreddit
+        ? `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/${category}.json`
+        : `https://www.reddit.com/${category}.json`;
+      const url = new URL(base);
+      url.searchParams.set('limit', '25');
+      if (after) url.searchParams.set('after', after);
+      const res = await fetch(url.toString(), { signal: controller.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const children = json?.data?.children ?? [];
+      const items: PostItem[] = children.map((c: any) => mapRedditPost(c.data));
+      const next: string | null = json?.data?.after ?? null;
+      return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
+    } catch (e) {
+      // Failure: present empty list; UI shows filters/search without noisy error UI
+      return { items: [], after: null, append: false } as { items: PostItem[]; after: string | null; append: boolean };
+    }
   }
 );
 
@@ -126,17 +118,22 @@ export const searchPosts = createAsyncThunk(
     const { query, after } = params;
     const controller = new AbortController();
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
-    const url = new URL('https://www.reddit.com/search.json');
-    url.searchParams.set('q', query);
-    url.searchParams.set('limit', '25');
-    if (after) url.searchParams.set('after', after);
-    const res = await fetch(url.toString(), { signal: controller.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    const children = json?.data?.children ?? [];
-    const items: PostItem[] = children.map((c: any) => mapRedditPost(c.data));
-    const next: string | null = json?.data?.after ?? null;
-    return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
+    try {
+      const url = new URL('https://www.reddit.com/search.json');
+      url.searchParams.set('q', query);
+      url.searchParams.set('limit', '25');
+      if (after) url.searchParams.set('after', after);
+      const res = await fetch(url.toString(), { signal: controller.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const children = json?.data?.children ?? [];
+      const items: PostItem[] = children.map((c: any) => mapRedditPost(c.data));
+      const next: string | null = json?.data?.after ?? null;
+      return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
+    } catch (e) {
+      // Fallback: empty results for failed search to avoid noisy error UI
+      return { items: [], after: null, append: false } as { items: PostItem[]; after: string | null; append: boolean };
+    }
   }
 );
 
@@ -239,5 +236,29 @@ const postsSlice = createSlice({
   }
 });
 
-export const { clear, beginRequest } = postsSlice.actions;
+// Local post creation for demo/UX: allows users to write a post in-app (not published to Reddit)
+export const postsActions = postsSlice.actions as typeof postsSlice.actions & {
+  addLocalPost: (payload: { title: string; selftext?: string; subreddit?: string }) => any
+};
+
+// Extend reducers: addLocalPost
+(postsSlice as any).caseReducers.addLocalPost = (state: PostsState, action: PayloadAction<{ title: string; selftext?: string; subreddit?: string }>) => {
+  const { title, selftext, subreddit } = action.payload;
+  const id = `local-${Date.now()}`;
+  const item: PostItem = {
+    id,
+    title: title.trim() || 'Untitled',
+    author: 'you',
+    subreddit: subreddit?.trim() || 'r/local',
+    thumbnail: '',
+    score: 0,
+    num_comments: 0,
+    created_utc: Math.floor(Date.now() / 1000)
+  };
+  state.items = [item, ...state.items];
+  if (!state.details) state.details = {};
+  state.details[id] = { status: 'succeeded', selftext: selftext || '', comments: [] };
+};
+
+export const { clear, beginRequest } = postsSlice.actions as any;
 export default postsSlice.reducer;

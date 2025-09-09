@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
 import { renderSelfText } from '@/utils/format';
-import { fetchPostDetails } from '@/store/postsSlice';
+import { fetchPostDetails, isLikelyRealRedditId } from '@/store/postsSlice';
 
 /**
  * PostPage renders an in-app reading card for the selected post id from the route.
@@ -17,7 +17,7 @@ const PostPage = () => {
   const details = useSelector((s: RootState) => (id ? s.posts.details?.[id] : undefined));
 
   useEffect(() => {
-    if (id && (!details || details.status === 'idle' || details.status === 'failed')) {
+    if (id && isLikelyRealRedditId(id) && (!details || details.status === 'idle' || details.status === 'failed')) {
       dispatch(fetchPostDetails({ id }));
     }
   }, [id]);
@@ -31,7 +31,7 @@ const PostPage = () => {
         </Link>
       </div>
 
-      {post ? (
+  {post && isLikelyRealRedditId(post.id) ? (
         <article className="rounded-lg bg-white/95 shadow p-5 md:p-7 animate-fade-in">
           <header className="space-y-2">
             <h1 className="text-3xl md:text-4xl font-semibold leading-tight">{post.title}</h1>
@@ -90,7 +90,13 @@ const PostPage = () => {
           </div>
         </article>
       ) : (
-        <p className="text-gray-600">Post not found.</p>
+        <div className="max-w-xl text-gray-700">
+          <p className="mb-3">Post not available. Please pick a real post from the home feed or search results.</p>
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-brand hover:underline">
+            <span aria-hidden>←</span>
+            <span>Back to home</span>
+          </Link>
+        </div>
       )}
     </div>
   );
