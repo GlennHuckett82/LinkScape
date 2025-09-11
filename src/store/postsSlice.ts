@@ -67,7 +67,7 @@ export function isLikelyRealRedditId(id: string): boolean {
   return /^[a-z0-9]{3,}$/i.test(id);
 }
 
-// Map Reddit API child to PostItem
+// Map a Reddit API child object into our lightweight PostItem.
 function mapRedditPost(d: any): PostItem {
   return {
     id: d.id,
@@ -81,13 +81,14 @@ function mapRedditPost(d: any): PostItem {
   };
 }
 
+// Load the frontpage (or a subreddit) using Reddit's public JSON API.
 export const fetchFeed = createAsyncThunk(
   'posts/fetchFeed',
   async (
     params: { category: 'hot' | 'new' | 'top'; after?: string | null; subreddit?: string },
     thunkAPI
   ) => {
-    // Build the Reddit URL for either frontpage or a specific subreddit.
+  // Build the Reddit URL for either frontpage or a specific subreddit.
     const { category, after, subreddit } = params;
     const controller = new AbortController();
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
@@ -112,16 +113,18 @@ export const fetchFeed = createAsyncThunk(
   }
 );
 
+// Search Reddit with optional sort (hot/new/top); supports pagination via "after".
 export const searchPosts = createAsyncThunk(
   'posts/searchPosts',
-  async (params: { query: string; after?: string | null }, thunkAPI) => {
-    const { query, after } = params;
+  async (params: { query: string; sort?: 'hot' | 'new' | 'top'; after?: string | null }, thunkAPI) => {
+    const { query, sort, after } = params;
     const controller = new AbortController();
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
     try {
       const url = new URL('https://www.reddit.com/search.json');
       url.searchParams.set('q', query);
       url.searchParams.set('limit', '25');
+      if (sort) url.searchParams.set('sort', sort);
       if (after) url.searchParams.set('after', after);
       const res = await fetch(url.toString(), { signal: controller.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -131,7 +134,7 @@ export const searchPosts = createAsyncThunk(
       const next: string | null = json?.data?.after ?? null;
       return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
     } catch (e) {
-      // Fallback: empty results for failed search to avoid noisy error UI
+  // Fallback: empty results for failed search to avoid noisy error UI
       return { items: [], after: null, append: false } as { items: PostItem[]; after: string | null; append: boolean };
     }
   }
@@ -139,7 +142,7 @@ export const searchPosts = createAsyncThunk(
 
 /**
  * Fetch a post's selftext and top-level comments by id.
- * Uses the public Reddit JSON endpoint: /comments/:id.json
+ * Uses Reddit’s /comments/:id.json endpoint. We keep it simple—top-level only.
  */
 export const fetchPostDetails = createAsyncThunk(
   'posts/fetchPostDetails',
@@ -236,12 +239,12 @@ const postsSlice = createSlice({
   }
 });
 
-// Local post creation for demo/UX: allows users to write a post in-app (not published to Reddit)
+// Local post creation for demo/UX: allows users to write a post in-app (not published to Reddit).
 export const postsActions = postsSlice.actions as typeof postsSlice.actions & {
   addLocalPost: (payload: { title: string; selftext?: string; subreddit?: string }) => any
 };
 
-// Extend reducers: addLocalPost
+// Extend reducers: addLocalPost (appends a local item to the top and seeds details)
 (postsSlice as any).caseReducers.addLocalPost = (state: PostsState, action: PayloadAction<{ title: string; selftext?: string; subreddit?: string }>) => {
   const { title, selftext, subreddit } = action.payload;
   const id = `local-${Date.now()}`;

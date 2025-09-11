@@ -7,10 +7,13 @@ import App from './App';
 import './index.css';
 
 /**
- * Entry point: mounts the React app, wires Redux provider and React Router.
+ * Welcome to the app entry.
+ * We mount React, wire up Redux, and choose a router that works in both
+ * local dev and GitHub Pages.
  */
-// Use HashRouter when opened from file:// to ensure routes match and the app renders.
-// Otherwise use BrowserRouter with a basename derived from Vite's BASE_URL (for subpath deploys like GitHub Pages).
+// Tip: When you double-click index.html (file://), we use HashRouter so routes still work.
+// In regular dev/production (http/https), we use BrowserRouter with a basename from Vite,
+// which keeps links happy when deploying under a subpath like /LinkScape/.
 const isFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:';
 const Router = isFileProtocol ? HashRouter : BrowserRouter;
 // When not using file://, derive basename from Vite at build-time.

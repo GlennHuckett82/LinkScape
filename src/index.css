@@ -1,18 +1,26 @@
+/* Tailwind powers most of the styling in this project. If you’re new to it,
+   think of these as utility classes you stack like Lego pieces. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* Tweak this to widen/narrow the content area. */
   --page-max: 1200px;
 }
 
-/* Simple design tokens */
+/* A tiny “container” helper so content doesn’t bump right into the window edges. */
 .container-page { @apply max-w-[var(--page-max)] mx-auto px-4; }
 
-/* App background image (replace URL as desired). Uses cover + fixed for a parallax feel. */
+/*
+  App background
+  The image below is from Unsplash and can be swapped for your own. We layer a
+  subtle dark gradient on top so text remains readable. The fixed attachment
+  gives a nice parallax feel as you scroll.
+*/
 html, body, #root { height: 100%; }
 body {
-  /* Example image from Unsplash (free to use) */
+  /* Free-to-use Unsplash image (feel free to replace the URL). */
   background-image:
     linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
     url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=80');
@@ -21,7 +29,7 @@ body {
   background-attachment: fixed;
 }
 
-/* Lightweight fade-in animations */
+/* A sprinkle of motion to make things feel alive. */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
