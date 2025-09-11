@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open CI status in GitHub Actions (manual follow-up)",
+			"type": "shell",
+			"command": "echo \"Pushed. Monitor CI at: https://github.com/GlennHuckett82/LinkScape/actions\"",
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}
