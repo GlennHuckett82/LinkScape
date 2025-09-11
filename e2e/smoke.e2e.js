@@ -9,7 +9,7 @@ describe('LinkScape E2E', () => {
     }
     const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeOpts).build();
 
-    const candidates = [
+  const candidates = [
       global.__E2E_BASE_URL__ || process.env.E2E_BASE_URL,
       'http://localhost:5173',
       'http://localhost:5174',
@@ -22,8 +22,9 @@ describe('LinkScape E2E', () => {
       for (const base of candidates) {
         try {
           // Debug log
-          console.log('E2E navigating to:', base);
-          await driver.get(base);
+          const url = base.includes('?') ? `${base}&seed=1` : `${base}?seed=1`;
+          console.log('E2E navigating to:', url);
+          await driver.get(url);
           await driver.wait(until.elementLocated(By.css('header')), 45000);
           const text = await driver.findElement(By.css('header')).getText();
           expect(text).toMatch(/LinkScape/i);
