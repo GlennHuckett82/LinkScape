@@ -35,6 +35,26 @@ npm run dev:5173   # http://localhost:5173
 - CI builds with the correct base and deploys `dist`.
 - Site URL: `https://<username>.github.io/LinkScape/`.
 
+## Developer Notes
+
+### Routing and base paths (GitHub Pages)
+- We use BrowserRouter in normal http/https contexts with `basename` set from Vite’s `import.meta.env.BASE_URL`.
+- GitHub Pages serves the app at `/LinkScape/`, so the build for Pages sets the base to `/LinkScape/` (see `npm run build:pages`).
+- When opening the app from `file://` (e.g., double‑clicking `index.html`), we fall back to HashRouter to keep routes functional without a server (see `src/main.tsx`).
+
+### E2E seeding and Chrome path
+- Tests can append `?seed=1` to the URL to add a deterministic local post on load (see `App.tsx`). This ensures the E2E suite always has something stable to click.
+- In CI, we run Selenium with headless Chrome. If Chrome isn’t on the PATH, set `CHROME_PATH` to the Chrome binary so the driver can launch it.
+- The E2E tests probe a few candidate base URLs and then navigate with `?seed=1` (see `e2e/*.js`).
+
+### hasInteracted/resetHome model (UX)
+- `hasInteracted` (in `src/store/uiSlice.ts`) starts as `false` so the home page shows only the Search and Hot/New/Top controls over the background.
+- It flips to `true` after the user searches or picks a category, which allows content to load.
+- `resetHome()` resets the home view to the clean initial state (clears the search, resets category to Hot, and sets `hasInteracted` to false). The "Back to homepage" buttons use this to hide content again and bring back the background‑only look.
+- This model keeps the first impression clean and intentional, while still making it easy to return to that state at any time.
+
+Tip: If you need to re‑run a search with the exact same term (e.g., to refresh), `triggerSearch()` increments a small nonce in the UI slice that HomePage listens to.
+
 ## Notes on performance (Windows + OneDrive)
 - OneDrive syncing can slow test/build I/O. For the snappiest experience, clone to a non‑synced folder like `C:\dev\LinkScape`.
 - Jest cache is stored in the system temp to avoid OneDrive overhead.

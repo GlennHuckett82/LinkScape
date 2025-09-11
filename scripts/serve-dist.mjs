@@ -1,4 +1,7 @@
-// Minimal static server for the built app (dist) with SPA fallback
+// Minimal static server for the built app (dist) with SPA fallback.
+// Usage: node scripts/serve-dist.mjs --port 5181 --host 127.0.0.1
+// Why this exists: it’s handy for previewing the production build locally,
+// and supports client-side routes by falling back to index.html.
 import http from 'http';
 import { readFile, stat } from 'fs/promises';
 import path from 'path';
@@ -52,7 +55,9 @@ const send = async (res, filePath, code = 200) => {
 const server = http.createServer(async (req, res) => {
   try {
     const reqUrl = new URL(req.url, `http://${req.headers.host}`);
-    let filePath = path.normalize(path.join(distDir, decodeURIComponent(reqUrl.pathname)));
+    // Normalize to a relative path under dist. Leading slashes would otherwise make path.join ignore distDir.
+    const cleanedPath = decodeURIComponent(reqUrl.pathname).replace(/^\/+/, '');
+    let filePath = path.normalize(path.join(distDir, cleanedPath));
 
     // Prevent path traversal outside dist
     if (!filePath.startsWith(distDir)) {
@@ -66,7 +71,7 @@ const server = http.createServer(async (req, res) => {
       filePath = path.join(filePath, 'index.html');
     }
 
-    if (!st) {
+  if (!st) {
       // SPA fallback to index.html for client-side routes
       return send(res, path.join(distDir, 'index.html'));
     }

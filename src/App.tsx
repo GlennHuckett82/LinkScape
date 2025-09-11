@@ -1,11 +1,36 @@
 import { Routes, Route, Link } from 'react-router-dom';
-// animations handled via CSS or react-transition-group later
+import { useEffect } from 'react';
+import { useAppDispatch } from '@/store/hooks';
+import { postsActions } from '@/store/postsSlice';
 import HomePage from '@/pages/HomePage';
 import PostPage from '@/pages/PostPage';
 import CreatePostPage from '@/pages/CreatePostPage';
+import { markInteracted } from '@/store/uiSlice';
 
-/** App shell: header + main content with client-side routes. */
+/**
+ * App shell: header + routes.
+ * The header stays simple on purpose—brand on the left, a small action on the right.
+ */
 const App = () => {
+  const dispatch = useAppDispatch();
+
+  // E2E-only: when ?seed=1 is present we add a local post so tests always have something to click.
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const wantSeed = sp.get('seed') === '1';
+      if (!wantSeed) return;
+      if (sessionStorage.getItem('e2eSeeded') === '1') return;
+      const action: any = (postsActions as any).addLocalPost({
+        title: 'E2E seeded post',
+        selftext: 'This post exists only for end-to-end tests.',
+        subreddit: 'r/local'
+      });
+      dispatch(action);
+      dispatch(markInteracted());
+      sessionStorage.setItem('e2eSeeded', '1');
+    } catch {}
+  }, [dispatch]);
   return (
     <div>
       <header className="border-b bg-white">

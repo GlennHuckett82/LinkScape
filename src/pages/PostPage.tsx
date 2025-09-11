@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { resetHome } from '@/store/uiSlice';
 import type { RootState } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
 import { renderSelfText } from '@/utils/format';
@@ -13,6 +15,8 @@ import { fetchPostDetails, isLikelyRealRedditId } from '@/store/postsSlice';
 const PostPage = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
+  const rawDispatch = useDispatch();
+  const navigate = useNavigate();
   const post = useSelector((s: RootState) => s.posts.items.find(p => p.id === id));
   const details = useSelector((s: RootState) => (id ? s.posts.details?.[id] : undefined));
 
@@ -24,11 +28,22 @@ const PostPage = () => {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-3">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-brand hover:underline">
           <span aria-hidden>←</span>
           <span>Back to results</span>
         </Link>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-md border border-brand/30 bg-white px-3 py-1.5 text-sm text-brand hover:bg-brand/5 focus:outline-none focus:ring-2 focus:ring-brand/40"
+          onClick={() => {
+            rawDispatch(resetHome());
+            navigate('/', { replace: true });
+          }}
+        >
+          <span aria-hidden>←</span>
+          <span>Back to homepage</span>
+        </button>
       </div>
 
   {post && isLikelyRealRedditId(post.id) ? (

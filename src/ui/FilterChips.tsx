@@ -10,8 +10,9 @@ const categories: Array<{ key: 'hot' | 'new' | 'top'; label: string }> = [
 ];
 
 /**
- * FilterChips toggles the active feed category. It writes to ui.selectedCategory,
- * which HomePage uses to fetch the chosen feed.
+ * FilterChips toggles the active category (Hot/New/Top).
+ * Changing the chip will re-sort the current search if one is active,
+ * or load the frontpage feed for that category.
  */
 const FilterChips = () => {
   const dispatch = useDispatch();
@@ -24,7 +25,10 @@ const FilterChips = () => {
           className={`px-3 py-1 rounded-full border text-sm ${
             selected === c.key ? 'bg-brand text-white border-brand' : 'bg-white hover:bg-gray-50'
           }`}
-          onClick={() => dispatch(setSelectedCategory(c.key))}
+          onClick={() => {
+            // Do not clear searchTerm so that changing category will re-run the current search with the selected sort.
+            dispatch(setSelectedCategory(c.key));
+          }}
         >
           {c.label}
         </button>

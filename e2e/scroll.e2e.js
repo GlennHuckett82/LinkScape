@@ -11,7 +11,8 @@ describe('Scroll restoration', () => {
 
     const base = global.__E2E_BASE_URL__ || process.env.E2E_BASE_URL || 'http://127.0.0.1:5192';
     try {
-      await driver.get(base);
+      const url = base.includes('?') ? `${base}&seed=1` : `${base}?seed=1`;
+      await driver.get(url);
       await driver.wait(until.elementLocated(By.css('main .grid')), 30000);
 
       // Scroll down to simulate browsing
