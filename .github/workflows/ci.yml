@@ -31,6 +31,22 @@ jobs:
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
+      - name: Install matching ChromeDriver
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9.]*' | head -1)
+          echo "Detected Chrome: $CHROME_VERSION"
+          PLATFORM=linux64
+          ZIP_URL="https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/${PLATFORM}/chromedriver-${PLATFORM}.zip"
+          echo "Downloading: $ZIP_URL"
+          curl -sSL "$ZIP_URL" -o /tmp/chromedriver.zip
+          rm -rf /tmp/chromedriver && mkdir -p /tmp/chromedriver
+          unzip -q /tmp/chromedriver.zip -d /tmp/chromedriver
+          sudo mv /tmp/chromedriver/chromedriver-${PLATFORM}/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
+          chromedriver --version
       - run: npm ci
       - run: npm run build
       - name: Run E2E (auto-start static server)
