@@ -31,10 +31,8 @@ jobs:
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
-      - name: Install ChromeDriver
-        run: |
-          npm install -g chromedriver
-          chromedriver --version
+          install-chromedriver: true
+
       - run: npm ci
       - run: npm run build
       - name: Run E2E (auto-start static server)
