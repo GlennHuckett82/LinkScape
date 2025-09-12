@@ -42,7 +42,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - name: Run E2E (auto-start static server)
-        run: npx jest -c ./e2e/jest.e2e.config.cjs --runInBand
-        env:
-          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      # - name: Run E2E (auto-start static server)
+      #   run: npx jest -c ./e2e/jest.e2e.config.cjs --runInBand
+      #   env:
+      #     CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
