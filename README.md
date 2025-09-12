@@ -17,7 +17,7 @@ Explore Reddit with a fast, responsive, in‑app reader. Built with React + Redu
 ## Quick start
 ```bash
 npm install
-npm run dev:5173   # http://localhost:5173
+npm run dev -- --port 3000   # http://localhost:3000 (with Vite proxy for Reddit API)
 ```
 
 ## Tests
@@ -34,6 +34,12 @@ npm run dev:5173   # http://localhost:5173
 ## Deploy (GitHub Pages)
 - CI builds with the correct base and deploys `dist`.
 - Site URL: `https://<username>.github.io/LinkScape/`.
+- **Limitation**: The live site on GitHub Pages will load the UI but fail to fetch Reddit posts due to CORS restrictions (Reddit blocks browser requests from static sites). For a fully functional demo, run locally with `npm run dev -- --port 3000` or deploy to a platform with backend support (e.g., Vercel with API routes).
+
+## Known Issues and Limitations
+- **CORS on Static Hosting**: Reddit's API blocks direct browser requests from static sites like GitHub Pages. The app works fully locally via Vite's proxy, but the live GitHub Pages site shows empty posts. This is a common issue for frontend-only projects; a backend proxy (e.g., on Vercel) would resolve it.
+- **Local Development**: Uses Vite proxy to bypass CORS for testing. If proxy fails, check console for errors.
+- **File Protocol**: Opening `index.html` directly works for the home page but breaks routing and API calls.
 
 ## Developer Notes
 
