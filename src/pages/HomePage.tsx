@@ -5,7 +5,7 @@ import PostList from '@/ui/PostList';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
-import { fetchFeed, searchPosts } from '@/store/postsSlice';
+import { fetchFeed, searchPosts, clear } from '@/store/postsSlice';
 import { setSearchTerm, resetHome } from '@/store/uiSlice';
 
 /**
@@ -38,6 +38,13 @@ const HomePage = () => {
       dispatch(setSearchTerm(''));
     }
   }, [status, searchTerm, items.length, dispatch]);
+
+  // Clear posts when resetting to home
+  useEffect(() => {
+    if (!hasInteracted) {
+      dispatch(clear());
+    }
+  }, [hasInteracted, dispatch]);
 
   // Restore scroll position when returning from PostPage
   useEffect(() => {

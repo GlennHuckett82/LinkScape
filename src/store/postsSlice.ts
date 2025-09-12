@@ -94,19 +94,22 @@ export const fetchFeed = createAsyncThunk(
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
     try {
       const base = subreddit
-        ? `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/${category}.json`
-        : `https://www.reddit.com/${category}.json`;
-      const url = new URL(base);
+        ? `/api/r/${encodeURIComponent(subreddit)}/${category}.json`
+        : `/api/${category}.json`;
+      const url = new URL(base, window.location.origin);
       url.searchParams.set('limit', '25');
       if (after) url.searchParams.set('after', after);
-      const res = await fetch(url.toString(), { signal: controller.signal });
+      console.log('Fetching feed:', url.toString());
+      const res = await fetch(url.toString(), { signal: controller.signal, headers: { 'User-Agent': 'LinkScape/1.0' } });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+      console.log('Feed response:', json);
       const children = json?.data?.children ?? [];
       const items: PostItem[] = children.map((c: any) => mapRedditPost(c.data));
       const next: string | null = json?.data?.after ?? null;
       return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
     } catch (e) {
+      console.error('Feed fetch error:', e);
       // Failure: present empty list; UI shows filters/search without noisy error UI
       return { items: [], after: null, append: false } as { items: PostItem[]; after: string | null; append: boolean };
     }
@@ -121,26 +124,27 @@ export const searchPosts = createAsyncThunk(
     const controller = new AbortController();
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
     try {
-      const url = new URL('https://www.reddit.com/search.json');
+      const url = new URL('/api/search.json', window.location.origin);
       url.searchParams.set('q', query);
       url.searchParams.set('limit', '25');
       if (sort) url.searchParams.set('sort', sort);
       if (after) url.searchParams.set('after', after);
-      const res = await fetch(url.toString(), { signal: controller.signal });
+      console.log('Searching posts:', url.toString());
+      const res = await fetch(url.toString(), { signal: controller.signal, headers: { 'User-Agent': 'LinkScape/1.0' } });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+      console.log('Search response:', json);
       const children = json?.data?.children ?? [];
       const items: PostItem[] = children.map((c: any) => mapRedditPost(c.data));
       const next: string | null = json?.data?.after ?? null;
       return { items, after: next, append: !!after } as { items: PostItem[]; after: string | null; append: boolean };
     } catch (e) {
+      console.error('Search fetch error:', e);
   // Fallback: empty results for failed search to avoid noisy error UI
       return { items: [], after: null, append: false } as { items: PostItem[]; after: string | null; append: boolean };
     }
   }
-);
-
-/**
+);/**
  * Fetch a post's selftext and top-level comments by id.
  * Uses Reddit’s /comments/:id.json endpoint. We keep it simple—top-level only.
  */
@@ -150,9 +154,9 @@ export const fetchPostDetails = createAsyncThunk(
     const { id } = params;
     const controller = new AbortController();
     thunkAPI.signal.addEventListener('abort', () => controller.abort());
-    const url = new URL(`https://www.reddit.com/comments/${encodeURIComponent(id)}.json`);
+    const url = new URL(`/api/comments/${encodeURIComponent(id)}.json`, window.location.origin);
     url.searchParams.set('limit', '20');
-    const res = await fetch(url.toString(), { signal: controller.signal });
+    const res = await fetch(url.toString(), { signal: controller.signal, headers: { 'User-Agent': 'LinkScape/1.0' } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     // json[0] = post listing, json[1] = comments listing

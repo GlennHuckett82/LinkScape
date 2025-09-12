@@ -12,9 +12,19 @@ export default defineConfig(({ mode }) => ({
     }
   },
   server: {
-    port: 5173
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'https://www.reddit.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
   build: {
+    rollupOptions: {
+      input: 'index.html'
+    },
     sourcemap: true
   }
 }));

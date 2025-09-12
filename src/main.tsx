@@ -22,7 +22,7 @@ const baseName = isFileProtocol ? undefined : import.meta.env.BASE_URL;
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-  <Router basename={baseName}>
+      <Router basename={baseName} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
       </Router>
     </Provider>
