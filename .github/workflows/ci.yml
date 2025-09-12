@@ -32,6 +32,14 @@ jobs:
         with:
           chrome-version: stable
           install-chromedriver: true
+      - name: Install matching ChromeDriver
+        run: |
+          set -euxo pipefail
+          CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9.]*' | head -1)
+          CHROME_MAJOR=$(echo $CHROME_VERSION | cut -d. -f1)
+          echo "Chrome version: $CHROME_VERSION, major: $CHROME_MAJOR"
+          npm install -g chromedriver@$CHROME_MAJOR
+          chromedriver --version
 
       - run: npm ci
       - run: npm run build
